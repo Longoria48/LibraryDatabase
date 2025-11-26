@@ -14,8 +14,10 @@ namespace LibraryDatabase
         public bool GoodCondition { get; set; }
         public bool IsCheckedOut { get; set; }
 
+        public bool? IsHardCover { get; set; }
 
-        public Book(string title, string author, string genre, bool goodCondition, bool isCheckedOut)
+
+        public Book(string title, string author, string genre, bool goodCondition, bool isCheckedOut, bool? isHarCover = null)
         {
             //Setting attributes to user provided values
             Title = title;
@@ -23,18 +25,7 @@ namespace LibraryDatabase
             Genre = genre;
             GoodCondition = goodCondition;
             IsCheckedOut = isCheckedOut;
-        }
-    }
-
-    //Derived class (child)
-    class CoverType : Book
-    {
-        public bool HardCover { get; set; } = false; //New attribute: hard cover or paperback
-
-        public CoverType(string title, string author, string genre, bool goodCondition, bool isCheckedOut, bool hardCover): 
-            base (title, author, genre, goodCondition, isCheckedOut)
-        {
-            HardCover = hardCover;
+            IsHardCover = isHarCover;
         }
     }
 

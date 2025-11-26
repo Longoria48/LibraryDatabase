@@ -73,7 +73,18 @@ namespace LibraryDatabase
             //Type Options
             if (rbBook.Checked)
             {
-                return new Book(title, author, genre, condition, available);
+                bool? isHardCover = null;
+
+                if (rbPaperback.Checked)
+                {
+                    isHardCover = false; 
+                }
+            else if (rbHardCover.Checked)
+            { 
+                    isHardCover = true; 
+            }
+
+                return new Book(title, author, genre, condition, available, isHardCover);
             }
             else if (rbEbook.Checked)
             {
@@ -106,6 +117,7 @@ namespace LibraryDatabase
 
             SqlConnection currConnection = null;
             SqlCommand myQuery= null;
+
             try
             {
                 currConnection = new SqlConnection(connectionString);
@@ -114,10 +126,10 @@ namespace LibraryDatabase
                 string sql = @"
                     INSERT INTO Materials
                     (Title, Author, Genre, GoodCondition, IsCheckedOut, Type,
-                    AudioLength, NarratorName, IssueNumber, MonthIssue, Publisher)
+                    AudioLength, NarratorName, IssueNumber, MonthIssue, Publisher, IsHardCover)
                     VALUES
                     (@Title, @Author, @Genre, @GoodCondition, @IsCheckedOut, @Type,
-                    @AudioLength, @NarratorName, @IssueNumber, @MonthIssue, @Publisher);";
+                    @AudioLength, @NarratorName, @IssueNumber, @MonthIssue, @Publisher, @IsHardCover);";
 
                 myQuery = new SqlCommand(sql, currConnection);
 
@@ -127,6 +139,8 @@ namespace LibraryDatabase
                 myQuery.Parameters.AddWithValue("@Genre", material.Genre);
                 myQuery.Parameters.AddWithValue("@GoodCondition", material.GoodCondition);
                 myQuery.Parameters.AddWithValue("@IsCheckedOut", material.IsCheckedOut);
+                myQuery.Parameters.AddWithValue("@IsHardCover", material.IsHardCover);
+
 
                 //Determine subtype
                 string type = "Book";
@@ -177,36 +191,20 @@ namespace LibraryDatabase
         {
             try
             {
-                ListboxAlerts.Items.Clear();
-
                 Book newBook = CreateBook();
 
                 //Save to Database
                 SaveMaterialToDB(newBook);
-                string connectionString;
 
-                connectionString = @"Data Source=KELCOS_OMNIBOOK\LONGORIAFA25; Initial Catalog=LibraryDB; User ID=LibraryAdmin; Password = Library1!; TrustServerCertificate=True";
-
-                SqlConnection currConnection;
-                currConnection = new SqlConnection(connectionString);
-                currConnection.Open();
-
-                string sqlStmt = "SELECT * FROM dbo.Materials";
-                SqlCommand myQuery = new SqlCommand(sqlStmt, currConnection);
-                SqlDataReader myReader = myQuery.ExecuteReader();
-
-                while (myReader.Read())
-                {
                     ListboxAlerts.Items.Add($"Created {newBook.GetType().Name}:");
                     ListboxAlerts.Items.Add($"Title: {newBook.Title}");
                     ListboxAlerts.Items.Add($"Author: {newBook.Author}");
                     ListboxAlerts.Items.Add($"Genre: {newBook.Genre}");
-                }
-                this.Close();
             }
-            catch(Exception)
+            catch(Exception ex)
             {
-                throw new Exception("Something went wrong here...");
+                ListboxAlerts.Items.Add("Could not save material. Please check the input values.");
+                ListboxAlerts.Items.Add("Error: " + ex.Message);
             }
 
         }
